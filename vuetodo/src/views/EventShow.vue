@@ -18,9 +18,9 @@
 
     <h2>
       Attendees
-      <span class="badge -fill-gradient">
-        {{ event.attendees ? event.attendees.length : 0 }}
-      </span>
+      <span class="badge -fill-gradient">{{
+        event.attendees ? event.attendees.length : 0
+      }}</span>
     </h2>
     <ul class="list-group">
       <li
@@ -34,7 +34,9 @@
   </div>
 </template>
 <script>
-import EventService from "@/services/EventService.js";
+//import EventService from "@/services/EventService.js";
+import { db } from "@/config/db";
+//import { ReverseO2A } from "object-to-array-convert";
 export default {
   props: ["id"],
   data() {
@@ -42,13 +44,28 @@ export default {
       event: {}
     };
   },
-  created() {
+  /*created() {
     EventService.getEvent(this.id) // <--- Send the prop id to our EventService
       .then(response => {
         this.event = response.data;
       })
       .catch(error => {
         console.log("There was an error:", error.response);
+      });
+  }*/
+  created() {
+    db.ref("events/" + this.id)
+      .once("value")
+      .then(data => {
+        if (data.exists()) {
+          var obj = JSON.parse(JSON.stringify(data));
+          this.event = obj;
+        } else {
+          console.log("There is no data" + this.id);
+        }
+      })
+      .catch(error => {
+        console.log(error);
       });
   }
 };

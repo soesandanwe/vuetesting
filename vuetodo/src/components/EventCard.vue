@@ -1,12 +1,15 @@
 <template>
   <router-link
     class="event-link"
-    :to="{ name: 'event-show', params: { id: event.id } }"
+    :to="{ name: 'event-show', params: { id: this.$vnode.key } }"
   >
     <div class="event-card -shadow">
       <span class="eyebrow">@{{ event.time }} on {{ event.date }}</span>
       <h4 class="title">{{ event.title }}</h4>
-      <BaseIcon name="users">{{ event.attendees.length }} attending</BaseIcon>
+      <h4 class="title">{{ event.id }}</h4>
+      <BaseIcon name="users"
+        >{{ event.attendees ? event.attendees.length : 0 }} attending</BaseIcon
+      >
     </div>
   </router-link>
 </template>
