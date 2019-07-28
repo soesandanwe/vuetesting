@@ -8,7 +8,7 @@
       <h4 class="title">{{ event.title }}</h4>
       <h4 class="title">{{ event.id }}</h4>
       <BaseIcon name="users"
-        >{{ event.attendees ? event.attendees.length : 0 }} attending</BaseIcon
+        >{{ event.user ? Object.values(event.user).length : 0 }} attending</BaseIcon
       >
     </div>
   </router-link>

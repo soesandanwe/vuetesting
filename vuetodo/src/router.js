@@ -27,6 +27,11 @@ export default new Router({
       component: EventCreate
     },
     {
+      path: "/event/update/:id",
+      name: "event-update",
+      component: EventCreate
+    },
+    {
       path: "/user/:username",
       name: "user",
       component: User,
