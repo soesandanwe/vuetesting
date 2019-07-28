@@ -60,6 +60,7 @@ export default {
         if (data.exists()) {
           var obj = JSON.parse(JSON.stringify(data));
           this.event = obj;
+          console.log(this.id);
         } else {
           console.log("There is no data" + this.id);
         }

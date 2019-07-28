@@ -1,12 +1,15 @@
 <template>
   <div id="main">
     <h1>Events Listing</h1>
-
+  
+    <div v-for="(event, index) in events" :key="index" :valuekeys="index">
+    
     <EventCard
-      v-for="(event, index) in events"
+      v-for="(value,index) in event"
       :key="index"
-      :event="event[index]"
+      :event="value"
     />
+    </div>
   </div>
 </template>
 <script>
@@ -16,7 +19,9 @@ import { db } from "@/config/db";
 import { O2A } from "object-to-array-convert";
 export default {
   components: { EventCard },
-
+  props: {
+    valuekeys: Object
+  },
   data() {
     return {
       events: []
@@ -27,7 +32,8 @@ export default {
       .child("events")
       .once("value")
       .then(data => {
-        this.events.push(O2A(data));
+        this.events.push(data.toJSON());
+   
       })
       .catch(error => {
         console.log(error);

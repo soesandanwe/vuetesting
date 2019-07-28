@@ -81,10 +81,7 @@
 <script>
 import { db } from "../config/db";
 export default {
-  firebase: {
-    events: db.ref("events")
-  },
-  data() {
+   data() {
     return {
       newEvent: {
         category: "",
@@ -93,7 +90,7 @@ export default {
         id: "",
         location: "",
         organizer: "",
-        time: "",
+        time:"",
         title: "",
         user: {
           id: "",
@@ -104,7 +101,7 @@ export default {
   },
   methods: {
     addEvent() {
-      this.$firebaseRefs.events.push({
+      db.ref("events").push({
         id: this.newEvent.id,
         category: this.newEvent.category,
         date: this.newEvent.date,
@@ -116,9 +113,8 @@ export default {
         userid: this.newEvent.user.id,
         username: this.newEvent.user.name
       });
-      this.newEvent.description = "";
-      this.newEvent.title = "";
-      this.$router.push("/index");
+     
+     // this.$router.push("/");
     }
   }
 };
