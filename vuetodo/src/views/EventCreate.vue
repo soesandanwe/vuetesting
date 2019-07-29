@@ -24,11 +24,7 @@
           </div>
           <div class="form-group">
             <label>Description:</label>
-            <input
-              type="text"
-              class="form-control"
-              v-model="newEvent.description"
-            />
+            <textarea class="form-control" v-model="newEvent.description" />
           </div>
           <div class="form-group">
             <label>Location:</label>
@@ -54,34 +50,25 @@
             <label>Title:</label>
             <input type="text" class="form-control" v-model="newEvent.title" />
           </div>
-          <ul>
-            <li v-for="(user,index) in newEvent.user" :key="index" :value="user[index]">
-            <div class="form-group">
-              <label>User ID:</label>
-              <input
-                type="text"
-                class="form-control"
-                v-model="user.userid" 
-              />
-            </div>
-            <div class="form-group">
+          <form @submit.prevent>
+            <button @click="add()">Add User</button>
+            <div class="form-group" v-for="(item, k) in newEvent.user" :key="k">
               <label>User Name:</label>
-              <input
-                type="text"
-                class="form-control"
-                v-model="user.username"
-              />
+              <input type="text" class="form-control" v-model="item.username" />
+
+              <button @click="remove(k)">Delete User</button>
             </div>
-            </li>
-          </ul>
+          </form>
+
           <div class="form-group">
             <input type="submit" class="btn btn-primary" value="Save" />
-            <input type="submit"  v-on:click="cancelEvent" class="btn btn-primary" value="Cancel" />
-            
+            <input
+              type="submit"
+              v-on:click="cancelEvent"
+              class="btn btn-primary"
+              value="Cancel"
+            />
           </div>
-         
-             
-        
         </form>
       </div>
     </div>
@@ -90,8 +77,9 @@
 <script>
 import { db } from "../config/db";
 export default {
-   props: ["id"],
-   data() {
+  props: ["id"],
+
+  data() {
     return {
       newEvent: {
         category: "",
@@ -100,36 +88,37 @@ export default {
         id: "",
         location: "",
         organizer: "",
-        time:"",
+        time: "",
         title: "",
-        user:[{
-          userid: "",
-          username: ""
-        }]
+        user: [
+          {
+            username: ""
+          }
+        ]
       }
     };
   },
-   created() {
-      if(this.$route.name!="event-create"){
-        db.ref("events/" + this.$route.params.id)
-            .once("value")
-            .then(data => {
-              if (data.exists()) {
-                var obj = JSON.parse(JSON.stringify(data));
-                this.newEvent=obj;
-                            
-              } else {
-                console.log("There is no data" + this.$route.params.id);
-              }
-            })
-            .catch(error => {
-              console.log(error);
-            });
-     //  console.log("There is no data" + this.$route.params.id);
-     }
+  created() {
+    if (this.$route.name != "event-create") {
+      db.ref("events/" + this.$route.params.id)
+        .once("value")
+        .then(data => {
+          if (data.exists()) {
+            var obj = JSON.parse(JSON.stringify(data));
+            this.newEvent = obj;
+            this.items = JSON.parse(JSON.stringify(obj.user));
+          } else {
+            console.log("There is no data" + this.$route.params.id);
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      //  console.log("There is no data" + this.$route.params.id);
+    }
   },
   methods: {
-    addEvent:function() {
+    addEvent: function() {
       let postData = {
         id: this.newEvent.id,
         category: this.newEvent.category,
@@ -139,24 +128,31 @@ export default {
         organizer: this.newEvent.organizer,
         time: this.newEvent.time,
         title: this.newEvent.title,
-        user:this.newEvent.user
-        
+        user: this.newEvent.user
       };
-      if(this.$route.name=="event-create")
-      {
+      if (this.$route.name == "event-create") {
         db.ref("events").push(JSON.parse(JSON.stringify(postData)));
         this.$router.push("/");
-      }
-      else{
-        var eid=this.$route.params.id;  
+      } else {
+        var eid = this.$route.params.id;
         db.ref("events/" + eid).update(JSON.parse(JSON.stringify(postData)));
-        this.$router.push({ name: 'event-show', params: { id:eid }});
+        this.$router.push({ name: "event-show", params: { id: eid } });
       }
-      
     },
-    cancelEvent:function()
-    {
+    cancelEvent: function() {
       this.$router.push("/");
+    },
+
+    add: function() {
+      if (this.$route.name == "event-create") {
+        this.newEvent.user.push({});
+      } else {
+        this.newEvent.user.push({});
+      }
+    },
+    remove: function(index) {
+      //alert(JSON.stringify(this.newEvent.user[index]));
+      this.newEvent.user.splice(index, 1);
     }
   }
 };

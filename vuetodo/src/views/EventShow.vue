@@ -15,22 +15,21 @@
 
     <h2>Event details</h2>
     <p>{{ event.description }}</p>
- 
+
     <h2>
-        Attendees
-        <span class="badge -fill-gradient">{{
-          event.user ? Object.values(event.user).length : 0
-        }}</span>
-      </h2>
-      <ul class="list-group">
-        <li v-for="(users,index) in event.user" :key=index class="list-item">
-          <b>{{ users ? users.username : ""}}</b>
-        </li>
-      </ul>
- 
-    
-     <button v-on:click="editItem" class="btn btn-danger">Edit</button>
-      <button v-on:click="deleteItem" class="btn btn-danger">Delete</button>
+      Attendees
+      <span class="badge -fill-gradient">{{
+        event.user ? Object.values(event.user).length : 0
+      }}</span>
+    </h2>
+    <ul class="list-group">
+      <li v-for="(users, index) in event.user" :key="index" class="list-item">
+        <b>{{ users ? users.username : "" }}</b>
+      </li>
+    </ul>
+
+    <button v-on:click="editItem" class="btn btn-danger">Edit</button>
+    <button v-on:click="deleteItem" class="btn btn-danger">Delete</button>
   </div>
 </template>
 <script>
@@ -61,7 +60,6 @@ export default {
         if (data.exists()) {
           var obj = JSON.parse(JSON.stringify(data));
           this.event = obj;
-          
         } else {
           console.log("There is no data" + this.id);
         }
@@ -70,21 +68,16 @@ export default {
         console.log(error);
       });
   },
-  methods:
-  {
-   
-     deleteItem: function () {
-      
+  methods: {
+    deleteItem: function() {
       if (confirm("Are you sure you want to delete this event?")) {
-       
-       db.ref("events/" + this.id).remove();
-       this.$router.push("/");
+        db.ref("events/" + this.id).remove();
+        this.$router.push("/");
       }
     },
-    editItem: function () {
-       var eid=this.id;     
-       this.$router.push({ name: 'event-update', params: { id:eid }});
-     
+    editItem: function() {
+      var eid = this.id;
+      this.$router.push({ name: "event-update", params: { id: eid } });
     }
   }
 };

@@ -1,14 +1,9 @@
 <template>
   <div id="main">
     <h1>Events Listing</h1>
-  
+
     <div v-for="(event, index) in events" :key="index" :valuekeys="index">
-    
-    <EventCard
-      v-for="(value,index) in event"
-      :key="index"
-      :event="value"
-    />
+      <EventCard v-for="(value, index) in event" :key="index" :event="value" />
     </div>
   </div>
 </template>
@@ -16,7 +11,7 @@
 //import EventService from "@/services/EventService.js";
 import EventCard from "@/components/EventCard.vue";
 import { db } from "@/config/db";
-import { O2A } from "object-to-array-convert";
+//import { O2A } from "object-to-array-convert";
 export default {
   components: { EventCard },
   props: {
@@ -33,7 +28,6 @@ export default {
       .once("value")
       .then(data => {
         this.events.push(data.toJSON());
-   
       })
       .catch(error => {
         console.log(error);
