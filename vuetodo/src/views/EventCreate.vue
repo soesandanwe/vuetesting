@@ -76,7 +76,7 @@
 </template>
 <script>
 import { db } from "../config/db";
-import { constants } from "crypto";
+
 export default {
   props: ["id"],
 
