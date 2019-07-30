@@ -76,6 +76,7 @@
 </template>
 <script>
 import { db } from "../config/db";
+import { constants } from "crypto";
 export default {
   props: ["id"],
 
@@ -104,9 +105,8 @@ export default {
         .once("value")
         .then(data => {
           if (data.exists()) {
-            var obj = JSON.parse(JSON.stringify(data));
+            var obj = data.val();
             this.newEvent = obj;
-            this.items = JSON.parse(JSON.stringify(obj.user));
           } else {
             console.log("There is no data" + this.$route.params.id);
           }
@@ -144,11 +144,7 @@ export default {
     },
 
     add: function() {
-      if (this.$route.name == "event-create") {
-        this.newEvent.user.push({});
-      } else {
-        this.newEvent.user.push({});
-      }
+      this.newEvent.user.push({});
     },
     remove: function(index) {
       //alert(JSON.stringify(this.newEvent.user[index]));
