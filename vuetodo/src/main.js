@@ -1,11 +1,13 @@
 import Vue from "vue";
 import { firestorePlugin } from "vuefire";
+import Vuelidate from 'vuelidate';
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import upperFirst from "lodash/upperFirst";
 import camelCase from "lodash/camelCase";
 import vuetify from "./plugins/vuetify";
+import VeeValidate from 'vee-validate';
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 
 const requireComponent = require.context(
@@ -24,6 +26,7 @@ requireComponent.keys().forEach(fileName => {
   Vue.component(componentName, componentConfig.default || componentConfig);
 });
 Vue.use(firestorePlugin);
+Vue.use(VeeValidate);
 Vue.config.productionTip = false;
 
 new Vue({

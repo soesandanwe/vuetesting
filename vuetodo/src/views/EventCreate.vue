@@ -14,7 +14,9 @@
               clearable
               persistentHint
               v-model="newEvent.title"
-              :rules="[rules.required]"
+              v-validate="'required'"
+              :error-messages="errors.collect('eventtitle')"
+              data-vv-name="eventtitle"
             ></v-text-field>
           </v-flex>
 
@@ -66,6 +68,10 @@
                   readonly
                   outlined
                   clearable
+                  persistentHint
+                  v-validate="'required'"
+                  :error-messages="errors.collect('eventdate')"
+                  data-vv-name="eventdate"
                   v-on="on"
                 ></v-text-field>
               </template>
@@ -91,7 +97,9 @@
                   outlined
                   clearable
                   persistentHint
-                  :rules="[rules.required]"
+                  v-validate="'required'"
+                  :error-messages="errors.collect('eventtime')"
+                  data-vv-name="eventtime"
                   v-on="on"
                 ></v-text-field>
               </template>
@@ -125,6 +133,9 @@
                 prepend-inner-icon="mdi-account"
                 append-icon="mdi-minus-circle"
                 v-model="item.username"
+                v-validate="'required'"
+                :error-messages="errors.collect('attendee')"
+                data-vv-name="attendee"
                 @click:append="remove(k)"
               ></v-text-field>
             </v-flex>
@@ -142,9 +153,12 @@
 </template>
 <script>
 import { db } from '../config/db'
-import { event } from '@mdi/js'
+
 export default {
   props: ['id'],
+ $_veeValidate: {
+      validator: 'new',
+    },
 
   data() {
     return {
@@ -162,14 +176,36 @@ export default {
           }
         ]
       },
-      rules: {
-        required: value => !!value || 'Required.'
+       dictionary: {
+        
+        custom: {
+          eventtitle: {
+            required: () => 'Event Title can not be empty',
+           
+          },
+           eventdate: {
+            required: () => 'Event Date can not be empty',
+           
+          },
+          eventtime: {
+            required: () => 'Event Time can not be empty',
+           
+          },
+          attendee: {
+            required: () => 'Attendee Name can not be empty',
+           
+          }
+          
+        },
       },
-      svgPath: event,
       menu2: false,
       modal2: false
     }
   },
+   mounted () {
+      this.$validator.localize('en', this.dictionary)
+    },
+
   created() {
     if (this.$route.name != 'event-create') {
       db.ref('events/' + this.$route.params.id)
@@ -190,32 +226,63 @@ export default {
   },
   methods: {
     addEvent: function() {
-      let postData = {
-        category: this.newEvent.category,
-        date: this.newEvent.date,
-        description: this.newEvent.description,
-        location: this.newEvent.location,
-        organizer: this.newEvent.organizer,
-        time: this.newEvent.time,
-        title: this.newEvent.title,
-        user: this.newEvent.user
-      }
-      if (this.$route.name == 'event-create') {
-        db.ref('events').push(JSON.parse(JSON.stringify(postData)))
-        this.$router.push('/')
-      } else {
-        db.ref('events/' + this.$route.params.id).update(
-          JSON.parse(JSON.stringify(postData))
-        )
-        this.$router.push('/')
-      }
+       this.$validator.validateAll().then(valid => {
+        if (valid) {
+            let postData = {
+              category: this.newEvent.category,
+              date: this.newEvent.date,
+              description: this.newEvent.description,
+              location: this.newEvent.location,
+              organizer: this.newEvent.organizer,
+              time: this.newEvent.time,
+              title: this.newEvent.title,
+              user: this.newEvent.user
+            }
+            if (this.$route.name == 'event-create') {
+              db.ref('events').push(JSON.parse(JSON.stringify(postData)))
+              this.$router.push('/')
+            } else {
+              db.ref('events/' + this.$route.params.id).update(
+                JSON.parse(JSON.stringify(postData))
+              )
+              this.$router.push('/')
+            }
+          }
+       });
     },
     cancelEvent: function() {
       this.$router.push('/')
     },
 
     add: function() {
-      this.newEvent.user.push({})
+      if(this.newEvent.user==null)
+      {
+         this.newEvent.user=[]         
+         this.newEvent.user.push({
+              username: ''
+            })
+          let updateData = {
+          category: this.newEvent.category,
+          date: this.newEvent.date,
+          description: this.newEvent.description,
+          location: this.newEvent.location,
+          organizer: this.newEvent.organizer,
+          time: this.newEvent.time,
+          title: this.newEvent.title,
+          user: this.newEvent.user
+        }
+        db.ref('events/' + this.$route.params.id).update(
+                JSON.parse(JSON.stringify(updateData))
+              )
+        window.location.reload();
+      }
+      else
+      {
+         alert(JSON.stringify(this.newEvent.user)) 
+        this.newEvent.user.push({})
+      }
+      
+      
     },
     remove: function(index) {
       //alert(JSON.stringify(this.newEvent.user[index]));
