@@ -1,43 +1,74 @@
 <template>
-  <v-card width="400" class="mx-auto mt-5">
-    <router-link
-      class="event-link"
-      :to="{ name: 'event-show', params: { id: this.$vnode.key } }"
+  <v-layout justify-center>
+    <v-card
+      width="450"
+      class="mx-auto mt-5"
+      :elevation="15"
+      @click.stop="show = true"
     >
       <v-card-title>
         <h2 class="title">{{ event.title }}</h2>
       </v-card-title>
       <v-card-text>
         <h4>{{ event.date }} {{ event.time }}</h4>
-        <div>
-          <BaseIcon name="users">
+
+        <BaseIcon name="evtloc">
+          <v-icon medium slot="images">mdi-account-group</v-icon>
+          <v-spacer></v-spacer>
+          <h3 slot="texts">
             {{ event.user ? Object.values(event.user).length : 0 }}
-            attending
-          </BaseIcon>
-        </div>
+            <span>attending</span>
+          </h3>
+        </BaseIcon>
       </v-card-text>
-    </router-link>
-    <v-divider></v-divider>
-    <v-card-actions>
-      <v-btn color="error" v-on:click="deleteItem">Delete</v-btn>
-      <v-spacer></v-spacer>
-      <v-btn color="success" v-on:click="editItem">Edit</v-btn>
-    </v-card-actions>
-  </v-card>
+
+      <v-dialog v-model="show" max-width="600">
+        <EventDetails :event="event" />
+      </v-dialog>
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+
+        <v-btn color="error" @click.stop="dialog = true">Remove</v-btn>
+
+        <v-btn color="success" v-on:click="editItem">Edit</v-btn>
+        <v-dialog v-model="dialog" persistent max-width="300">
+          <v-card>
+            <v-card-title class="headline">Remove Event</v-card-title>
+            <v-card-text>
+              Are you sure you want to remove this event :
+              {{ event.title }} ?
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text @click.stop="dialog = false">No</v-btn>
+              <v-btn color="primary" text @click.stop="deleteItem">Yes</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-card-actions>
+    </v-card>
+  </v-layout>
 </template>
 
 <script>
 import { db } from "@/config/db";
+import EventDetails from "@/components/EventDetails.vue";
 export default {
+  components: { EventDetails },
   props: {
     event: Object
   },
+  data() {
+    return {
+      show: false,
+      dialog: false
+    };
+  },
   methods: {
     deleteItem: function() {
-      if (confirm("Are you sure you want to delete this event?")) {
-        db.ref("events/" + this.$vnode.key).remove();
-        window.location.reload();
-      }
+      db.ref("events/" + this.$vnode.key).remove();
+      window.location.reload();
     },
     editItem: function() {
       var eid = this.$vnode.key;
@@ -53,24 +84,5 @@ h2 {
 }
 h4 {
   color: blueviolet;
-}
-.event-card {
-  padding: 20px;
-  margin-bottom: 24px;
-  transition: all 0.2s linear;
-  cursor: pointer;
-}
-.event-card:hover {
-  transform: scale(1.01);
-  box-shadow: 0 3px 12px 0 rgba(0, 0, 0, 0.2), 0 1px 15px 0 rgba(0, 0, 0, 0.19);
-}
-.event-card > .title {
-  margin: 0;
-}
-
-.event-link {
-  color: black;
-  text-decoration: none;
-  font-weight: 100;
 }
 </style>

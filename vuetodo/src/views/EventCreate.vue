@@ -1,126 +1,196 @@
 <template>
-  <div class="container">
-    <div class="card">
-      <div class="card-header">
-        <h3>Add Event</h3>
-      </div>
-      <div class="card-body">
-        <form v-on:submit.prevent="addEvent">
-          <div class="form-group">
-            <label>ID:</label>
-            <input type="text" class="form-control" v-model="newEvent.id" />
-          </div>
-          <div class="form-group">
-            <label>Category:</label>
-            <input
-              type="text"
-              class="form-control"
+  <v-layout wrap justify-left>
+    <v-card width="800" class="mx-auto mt-5" :elevation="15">
+      <v-card-title>
+        <h3>Event</h3>
+      </v-card-title>
+      <v-spacer></v-spacer>
+      <v-card-text>
+        <v-form v-on:submit.prevent="addEvent">
+          <v-flex xs12 sm6 md12>
+            <v-text-field
+              label="Title"
+              outlined
+              clearable
+              persistentHint
+              v-model="newEvent.title"
+              :rules="[rules.required]"
+            ></v-text-field>
+          </v-flex>
+
+          <v-flex xs12 sm6 md12>
+            <v-text-field
+              label="Category"
+              outlined
+              clearable
+              persistentHint
               v-model="newEvent.category"
-            />
-          </div>
-          <div class="form-group">
-            <label>Date:</label>
-            <input type="text" class="form-control" v-model="newEvent.date" />
-          </div>
-          <div class="form-group">
-            <label>Description:</label>
-            <textarea class="form-control" v-model="newEvent.description" />
-          </div>
-          <div class="form-group">
-            <label>Location:</label>
-            <input
-              type="text"
-              class="form-control"
-              v-model="newEvent.location"
-            />
-          </div>
-          <div class="form-group">
-            <label>Organizer:</label>
-            <input
-              type="text"
-              class="form-control"
+            ></v-text-field>
+          </v-flex>
+
+          <v-flex xs12 sm6 md12>
+            <v-textarea
+              label="Description"
+              outlined
+              clearable
+              persistentHint
+              v-model="newEvent.description"
+            ></v-textarea>
+          </v-flex>
+
+          <v-flex xs12 sm6 md12>
+            <v-text-field
+              label="Organizer"
+              outlined
+              clearable
+              persistentHint
               v-model="newEvent.organizer"
-            />
-          </div>
-          <div class="form-group">
-            <label>Time:</label>
-            <input type="text" class="form-control" v-model="newEvent.time" />
-          </div>
-          <div class="form-group">
-            <label>Title:</label>
-            <input type="text" class="form-control" v-model="newEvent.title" />
-          </div>
-          <form @submit.prevent>
-            <button @click="add()">Add User</button>
-            <div class="form-group" v-for="(item, k) in newEvent.user" :key="k">
-              <label>User Name:</label>
-              <input type="text" class="form-control" v-model="item.username" />
+            ></v-text-field>
+          </v-flex>
 
-              <button @click="remove(k)">Delete User</button>
-            </div>
-          </form>
+          <v-flex xs12 sm6 md12>
+            <v-menu
+              v-model="menu2"
+              :close-on-content-click="false"
+              :nudge-right="40"
+              transition="scale-transition"
+              offset-y
+              full-width
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on }">
+                <v-text-field
+                  v-model="newEvent.date"
+                  label="Event Date"
+                  prepend-inner-icon="event"
+                  readonly
+                  outlined
+                  clearable
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker v-model="newEvent.date" :show-current="false" @input="menu2 = false"></v-date-picker>
+            </v-menu>
+          </v-flex>
 
-          <div class="form-group">
-            <input type="submit" class="btn btn-primary" value="Save" />
-            <input
-              type="submit"
-              v-on:click="cancelEvent"
-              class="btn btn-primary"
-              value="Cancel"
-            />
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+          <v-flex xs12 sm6 md12>
+            <v-dialog
+              ref="dialog"
+              v-model="modal2"
+              :return-value.sync="newEvent.time"
+              persistent
+              full-width
+              width="290px"
+            >
+              <template v-slot:activator="{ on }">
+                <v-text-field
+                  v-model="newEvent.time"
+                  label="Event Time"
+                  prepend-inner-icon="access_time"
+                  readonly
+                  outlined
+                  clearable
+                  persistentHint
+                  :rules="[rules.required]"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-time-picker v-if="modal2" v-model="newEvent.time" :ampmInTitle="true" full-width>
+                <v-spacer></v-spacer>
+                <v-btn text color="primary" @click="modal2 = false">Cancel</v-btn>
+                <v-btn text color="primary" @click="$refs.dialog.save(newEvent.time)">OK</v-btn>
+              </v-time-picker>
+            </v-dialog>
+          </v-flex>
+
+          <v-flex xs12 sm6 md12>
+            <v-text-field
+              label="Location"
+              outlined
+              clearable
+              persistentHint
+              prepend-inner-icon="place"
+              v-model="newEvent.location"
+            ></v-text-field>
+          </v-flex>
+          <v-btn color="primary" @click="add()">Add Attendee</v-btn>
+          <v-form @submit.prevent>
+            <br />
+            <v-flex xs12 sm6 md12 v-for="(item, k) in newEvent.user" :key="k">
+              <v-text-field
+                label="Attendee"
+                outlined
+                clearable
+                persistentHint
+                prepend-inner-icon="mdi-account"
+                append-icon="mdi-minus-circle"
+                v-model="item.username"
+                @click:append="remove(k)"
+              ></v-text-field>
+            </v-flex>
+          </v-form>
+        </v-form>
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="success" v-on:click="addEvent">Save</v-btn>
+        <v-btn v-on:click="cancelEvent">Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-layout>
 </template>
 <script>
-import { db } from "../config/db";
-
+import { db } from '../config/db'
+import { event } from '@mdi/js'
 export default {
-  props: ["id"],
+  props: ['id'],
 
   data() {
     return {
       newEvent: {
-        category: "",
-        date: "",
-        description: "",
-        id: "",
-        location: "",
-        organizer: "",
-        time: "",
-        title: "",
+        category: '',
+        date: '',
+        description: '',
+        location: '',
+        organizer: '',
+        time: '',
+        title: '',
         user: [
           {
-            username: ""
+            username: ''
           }
         ]
-      }
-    };
+      },
+      rules: {
+        required: value => !!value || 'Required.'
+      },
+      svgPath: event,
+      menu2: false,
+      modal2: false
+    }
   },
   created() {
-    if (this.$route.name != "event-create") {
-      db.ref("events/" + this.$route.params.id)
-        .once("value")
+    if (this.$route.name != 'event-create') {
+      db.ref('events/' + this.$route.params.id)
+        .once('value')
         .then(data => {
           if (data.exists()) {
-            var obj = data.val();
-            this.newEvent = obj;
+            var obj = data.val()
+            this.newEvent = obj
           } else {
-            console.log("There is no data" + this.$route.params.id);
+            console.log('There is no data' + this.$route.params.id)
           }
         })
         .catch(error => {
-          console.log(error);
-        });
+          console.log(error)
+        })
       //  console.log("There is no data" + this.$route.params.id);
     }
   },
   methods: {
     addEvent: function() {
       let postData = {
-        id: this.newEvent.id,
         category: this.newEvent.category,
         date: this.newEvent.date,
         description: this.newEvent.description,
@@ -129,29 +199,30 @@ export default {
         time: this.newEvent.time,
         title: this.newEvent.title,
         user: this.newEvent.user
-      };
-      if (this.$route.name == "event-create") {
-        db.ref("events").push(JSON.parse(JSON.stringify(postData)));
-        this.$router.push("/");
+      }
+      if (this.$route.name == 'event-create') {
+        db.ref('events').push(JSON.parse(JSON.stringify(postData)))
+        this.$router.push('/')
       } else {
-        var eid = this.$route.params.id;
-        db.ref("events/" + eid).update(JSON.parse(JSON.stringify(postData)));
-        this.$router.push({ name: "event-show", params: { id: eid } });
+        db.ref('events/' + this.$route.params.id).update(
+          JSON.parse(JSON.stringify(postData))
+        )
+        this.$router.push('/')
       }
     },
     cancelEvent: function() {
-      this.$router.push("/");
+      this.$router.push('/')
     },
 
     add: function() {
-      this.newEvent.user.push({});
+      this.newEvent.user.push({})
     },
     remove: function(index) {
       //alert(JSON.stringify(this.newEvent.user[index]));
-      this.newEvent.user.splice(index, 1);
+      this.newEvent.user.splice(index, 1)
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped></style>

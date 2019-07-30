@@ -6,6 +6,7 @@ import store from "./store";
 import upperFirst from "lodash/upperFirst";
 import camelCase from "lodash/camelCase";
 import vuetify from "./plugins/vuetify";
+import "material-design-icons-iconfont/dist/material-design-icons.css";
 
 const requireComponent = require.context(
   "./components",
