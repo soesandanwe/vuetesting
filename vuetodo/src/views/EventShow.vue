@@ -1,47 +1,61 @@
 <template>
   <div>
-    <div class="event-header">
-      <span class="eyebrow">@{{ event.time }} on {{ event.date }}</span>
-      <h1 class="title">{{ event.title }}</h1>
-      <h5>Organized by {{ event.organizer }}</h5>
-      <h5>Category: {{ event.category }}</h5>
-    </div>
+    <v-card width="600" class="mx-auto mt-5">
+      <v-card-title>
+        <h1 class="title">{{ event.title }}</h1>
+      </v-card-title>
+      <v-card-text>
+        <div class="event-header">
+          <h2>Event details</h2>
+          <p>{{ event.description }}</p>
+          <br />
+          <h4>Category: {{ event.category }}</h4>
+          <br />
+          <h4>Date : {{ event.date }}</h4>
+          <br />
+          <h4>Time: {{ event.time }}</h4>
+          <br />
+          <BaseIcon name="map">
+            :
+            <address>{{ event.location }}</address>
+          </BaseIcon>
+          <br />
+          <h4>Organized by : {{ event.organizer }}</h4>
+          <br />
+        </div>
 
-    <BaseIcon name="map">
-      <h2>Location</h2>
-    </BaseIcon>
+        <v-badge :overlap="true">
+          <template v-slot:badge>
+            {{ event.user ? Object.values(event.user).length : 0 }}
+          </template>
+          <v-icon large>{{ svgPath }}</v-icon>
+        </v-badge>
 
-    <address>{{ event.location }}</address>
-
-    <h2>Event details</h2>
-    <p>{{ event.description }}</p>
-
-    <h2>
-      Attendees
-      <span class="badge -fill-gradient">{{
-        event.user ? Object.values(event.user).length : 0
-      }}</span>
-    </h2>
-    <ul class="list-group">
-      <li v-for="(users, index) in event.user" :key="index" class="list-item">
-        <b>{{ users ? users.username : "" }}</b>
-      </li>
-    </ul>
-
-    <button v-on:click="editItem" class="btn btn-danger">Edit</button>
-    <button v-on:click="deleteItem" class="btn btn-danger">Delete</button>
+        <br />
+        <ul class="list-group">
+          <li
+            v-for="(users, index) in event.user"
+            :key="index"
+            class="list-item"
+          >
+            <b>{{ users ? users.username : "" }}</b>
+          </li>
+        </ul>
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 <script>
 //import EventService from "@/services/EventService.js";
 import { db } from "@/config/db";
-
+import { mdiAccount } from "@mdi/js";
 //import { ReverseO2A } from "object-to-array-convert";
 export default {
   props: ["id"],
   data() {
     return {
-      event: {}
+      event: {},
+      svgPath: mdiAccount
     };
   },
   /*created() {
@@ -67,18 +81,6 @@ export default {
       .catch(error => {
         console.log(error);
       });
-  },
-  methods: {
-    deleteItem: function() {
-      if (confirm("Are you sure you want to delete this event?")) {
-        db.ref("events/" + this.id).remove();
-        this.$router.push("/");
-      }
-    },
-    editItem: function() {
-      var eid = this.id;
-      this.$router.push({ name: "event-update", params: { id: eid } });
-    }
   }
 };
 </script>
@@ -99,6 +101,6 @@ export default {
 }
 .list-group > .list-item {
   padding: 1em 0;
-  border-bottom: solid 1px #e5e5e5;
+  border-top: solid 1px #e5e5e5;
 }
 </style>

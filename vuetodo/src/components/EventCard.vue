@@ -1,31 +1,56 @@
 <template>
-  <router-link
-    class="event-link"
-    :to="{ name: 'event-show', params: { id: this.$vnode.key } }"
-  >
-    <div class="event-card -shadow">
-      <span class="eyebrow">@{{ event.time }} on {{ event.date }}</span>
-      <h4 class="title">{{ event.title }}</h4>
-      <h4 class="title">{{ event.id }}</h4>
-      <BaseIcon name="users"
-        >{{
-          event.user ? Object.values(event.user).length : 0
-        }}
-        attending</BaseIcon
-      >
-    </div>
-  </router-link>
+  <v-card width="400" class="mx-auto mt-5">
+    <router-link
+      class="event-link"
+      :to="{ name: 'event-show', params: { id: this.$vnode.key } }"
+    >
+      <v-card-title>
+        <h2 class="title">{{ event.title }}</h2>
+      </v-card-title>
+      <v-card-text>
+        <h4>{{ event.date }} {{ event.time }}</h4>
+        <div>
+          <BaseIcon name="users">
+            {{ event.user ? Object.values(event.user).length : 0 }}
+            attending
+          </BaseIcon>
+        </div>
+      </v-card-text>
+    </router-link>
+    <v-divider></v-divider>
+    <v-card-actions>
+      <v-btn color="error" v-on:click="deleteItem">Delete</v-btn>
+      <v-spacer></v-spacer>
+      <v-btn color="success" v-on:click="editItem">Edit</v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script>
+import { db } from "@/config/db";
 export default {
   props: {
     event: Object
+  },
+  methods: {
+    deleteItem: function() {
+      if (confirm("Are you sure you want to delete this event?")) {
+        db.ref("events/" + this.$vnode.key).remove();
+        window.location.reload();
+      }
+    },
+    editItem: function() {
+      var eid = this.$vnode.key;
+      this.$router.push({ name: "event-update", params: { id: eid } });
+    }
   }
 };
 </script>
 
 <style scoped>
+h2 {
+  color: blueviolet;
+}
 h4 {
   color: blueviolet;
 }
